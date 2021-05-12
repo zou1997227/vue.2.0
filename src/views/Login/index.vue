@@ -40,6 +40,7 @@
         </el-form-item>
 
         <!-- 验证密码 -->
+        <!-- 使用v-show的话有一些小bug,切换到login页面的话也是提交不成功,可以使用v-if,也可以重新加一个判断 -->
         <el-form-item prop="passwords" class="item-from" v-show="model === 'registered'">
           <label for="passwords">重复密码</label>
           <el-input
@@ -51,7 +52,6 @@
             maxlength="20"
           ></el-input>
         </el-form-item>
-
 
         <!-- 验证码 -->
         <el-form-item prop="code" class="item-from">
@@ -68,7 +68,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="danger" @click="submitForm('ruleForm')" class="login-bth block">登录</el-button>
+          <el-button type="danger" @click="submitForm('ruleForm')" class="login-bth block">{{bth}}</el-button>
           <!-- <el-button @click="resetForm('ruleForm')">重置</el-button> -->
         </el-form-item>
       </el-form>
@@ -115,6 +115,10 @@ export default {
         // 把过滤后的数据重新绑定到value里面
           this.ruleForm.passwords= stripscript(value)
           value = stripscript(value)
+        // 解决v-show的登录小bug
+          if(this.model == 'login'){
+              callback();
+          }
 
         if (value === '') {
           callback(new Error('请再次输入密码'));
@@ -125,7 +129,7 @@ export default {
         }
       };
 
-    //   验证验证码
+    //   验证验证码正则格式
         var validateCode = (rule, value, callback) => { 
             this.ruleForm.code= stripscript(value)
             value = stripscript(value)
@@ -144,6 +148,8 @@ export default {
                 {txt:'登录',current:true,type:'login'},
                 {txt:'注册',current:false,type:'registered'}
             ],
+            // 登录注册按钮切换
+            bth:'登录',
 
             // 校验模块
             model:'login',
@@ -184,6 +190,10 @@ export default {
     })
     data.current= true
     this.model=data.type
+    this.bth= '登录'
+    if(data.type == 'registered'){
+        this.bth='注册'
+    }
     },
    submitForm(formName) {
         this.$refs[formName].validate((valid) => {
@@ -211,11 +221,12 @@ export default {
   //vh根据可视区域的宽高来定义,10vh就是100%可视区域的高
   height: 100vh;
   background-color: #344a5f;
+  display: flex;
 }
 
 .login-wrap {
   width: 330px;
-  margin: 0 auto;
+  margin:auto;
 }
 
 .menu-tab {
