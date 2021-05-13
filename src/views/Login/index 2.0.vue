@@ -76,16 +76,12 @@
   </div>
 </template>
 <script>
-import {reactive,ref,isRef, toRefs} from '@vue/composition-api';
 import {stripscript,validateEmail,validateCodes,validatePasswords} from "@/utils/validate";
 export default {
     name:'login',
-    // vue3.0语法,都写在这个函数里面
-  // setup(props,context){
-    // 解构的写法
-    setup(props,{refs}){
-    // 验证用户名
-   let validateUsername = (rule, value, callback) => {
+    data (){
+    //   验证邮箱
+      var validateUsername = (rule, value, callback) => {
           
         if (value === '') {
           callback(new Error('请输入用户名'));
@@ -97,11 +93,11 @@ export default {
         }
       };
 
-  //   验证密码
-      let validatePassword = (rule, value, callback) => {
+    //   验证密码
+      var validatePassword = (rule, value, callback) => {
         //   console.log(stripscript(value));
         // 把过滤后的数据重新绑定到value里面
-          ruleForm.password= stripscript(value)
+          this.ruleForm.password= stripscript(value)
           value = stripscript(value)
 
         if (value === '') {
@@ -114,19 +110,19 @@ export default {
       };
 
       //   验证重复密码
-      let validatePasswordd = (rule, value, callback) => {
+      var validatePasswordd = (rule, value, callback) => {
         //   console.log(stripscript(value));
         // 把过滤后的数据重新绑定到value里面
-          ruleForm.passwords= stripscript(value)
+          this.ruleForm.passwords= stripscript(value)
           value = stripscript(value)
         // 解决v-show的登录小bug
-          if(model.value == 'login'){
+          if(this.model == 'login'){
               callback();
           }
 
         if (value === '') {
           callback(new Error('请再次输入密码'));
-        } else if (value != ruleForm.password) {
+        } else if (value != this.ruleForm.password) {
           callback(new Error('两次密码输入不一样'));
         } else {
           callback();
@@ -134,8 +130,8 @@ export default {
       };
 
     //   验证验证码正则格式
-        let validateCode = (rule, value, callback) => { 
-            ruleForm.code= stripscript(value)
+        var validateCode = (rule, value, callback) => { 
+            this.ruleForm.code= stripscript(value)
             value = stripscript(value)
         if (!value) {
            callback(new Error('验证码不能为空'));
@@ -146,40 +142,24 @@ export default {
         }
        
       };
-       /*********************************************************************************************************************
-       * 声明数据
-       */
-      // 这里面放置data数据、生命周期、自定义的函数
-      const menuTab = reactive([
-        {txt:'登录',current:true,type:'login'},
-        {txt:'注册',current:false,type:'registered'}
-      ]);
+        return{
+            msg:'1111',
+            menuTab:[
+                {txt:'登录',current:true,type:'login'},
+                {txt:'注册',current:false,type:'registered'}
+            ],
+            // 登录注册按钮切换
+            bth:'登录',
 
-      //模块值
-      const model = ref('login');
-      const  bth = ref('登录');
-      // console.log(isRef(model) ? true : false);
-      // console.log(menuTab[0]);
-      // let a = reactive({
-      //   x:1,
-      //   y:2
-      // })
-      // toRrfs将对象数据类型转化为基础数据类型
-      // let b = toRefs(a)
-
-      // console.log(b.x.value);
-      
-      
-      // 表单的绑定数据
-      const ruleForm =reactive({
+            // 校验模块
+            model:'login',
+            ruleForm: {
           username: '',
           password: '',
           code: '',
           passwords:'',
-        });
-
-        // 表单验证
-        const rules = reactive({
+        },
+        rules: {
           username: [
             { validator: validateUsername, trigger: 'blur' }
           ],
@@ -192,58 +172,47 @@ export default {
           passwords: [
             { validator: validatePasswordd, trigger: 'blur' }
           ],
-        });
+        }
+        }
+        
+    },
+    created(){
 
-
-        /**
-       * 1、不建议在一个方法里面做多件不同的事件（尽可能只做自己本身的事，不要做其他人的事情）
-       * 2、尽量把相同的事情封装一个方法里面，通过调用函数进行执行
-       */
-
-      /**
-       * 声明函数
-       */
-      // 切换登录注册模块
-      //以声明函数的方式创建函数 数据驱动视图
-     const toggleMneu =(data =>{
-         console.log(data)
-         menuTab.forEach(elem =>{
-             // console.log(elem);
-             elem.current = false;
-         });
-         data.current= true
-         model.value=data.type
-         bth.value= '登录'
-         if(data.type == 'registered'){
-             bth.value='注册'
-         }
-    });
-
-    // 提交表单验证方法
-   const submitForm = (formName => {
-    //  context.refs[formName].validate((valid) => {
-      // 解构的写法,不用加context了
-        refs[formName].validate((valid) => {
+    },
+    mounted(){},
+    methods:{
+// 数据驱动视图
+    toggleMneu(data){
+    console.log(data)
+    this.menuTab.forEach(elem =>{
+        // console.log(elem);
+        elem.current = false;
+    })
+    data.current= true
+    this.model=data.type
+    this.bth= '登录'
+    if(data.type == 'registered'){
+        this.bth='注册'
+    }
+    },
+   submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
           if (valid) {
             alert('submit!');
           } else {
             alert('error submit!!');
             return false;
           }
-        })
-      });
+        });
+      },
+     
+    },
+    props:{
+// 子组件的方法
+    },
+    watch:{
 
-      return{
-        menuTab,
-        model,
-        bth,
-        ruleForm,
-        rules,
-         toggleMneu,
-         submitForm
-      }
-
-  }
+    }
 }
 </script>
 
@@ -257,7 +226,7 @@ export default {
 
 .login-wrap {
   width: 330px;
-  margin: auto;
+  margin:auto;
 }
 
 .menu-tab {
