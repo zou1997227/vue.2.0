@@ -23,13 +23,14 @@
         <!-- 邮箱 -->
         <el-form-item prop="username" class="item-from">
           <label for="username">邮箱</label>
-          <el-input type="text" v-model="ruleForm.username" autocomplete="off" class="input"></el-input>
+          <el-input id="username" type="text" v-model="ruleForm.username" autocomplete="off" class="input"></el-input>
         </el-form-item>
 
         <!-- 密码 -->
         <el-form-item prop="password" class="item-from">
           <label for="password">密码</label>
           <el-input
+            id="password"
             type="text"
             v-model="ruleForm.password"
             autocomplete="off"
@@ -44,6 +45,7 @@
         <el-form-item prop="passwords" class="item-from" v-show="model === 'registered'">
           <label for="passwords">重复密码</label>
           <el-input
+          id="passwords"
             type="text"
             v-model="ruleForm.passwords"
             autocomplete="off"
@@ -55,11 +57,11 @@
 
         <!-- 验证码 -->
         <el-form-item prop="code" class="item-from">
-          <label>验证码</label>
+          <label for="code">验证码</label>
           <el-row :gutter="10">
             <el-col :span="15">
               <!-- .number的作用是不让输入字符,只允许输入数字 -->
-              <el-input type="text" v-model="ruleForm.code" maxlength="6"></el-input>
+              <el-input id="code" type="text" v-model="ruleForm.code" maxlength="6"></el-input>
             </el-col>
             <el-col :span="9">
               <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
@@ -68,7 +70,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="danger" @click="submitForm('ruleForm')" class="login-bth block">{{bth}}</el-button>
+          <el-button type="danger" :disabled="loginButtonStatus" @click="submitForm('ruleForm')" class="login-bth block">{{model == 'login' ? "登录" : "注册"}}</el-button>
           <!-- <el-button @click="resetForm('ruleForm')">重置</el-button> -->
         </el-form-item>
       </el-form>
@@ -83,8 +85,16 @@ export default {
     name:'login',
     // vue3.0语法,都写在这个函数里面
   // setup(props,context){
+     /**
+     *attrs: (...) == this.$attrs
+      emit: (...) == this.$emit
+      listeners: (...) == this.$listeners
+      parent: (...) == this.$parent
+      refs: (...) == this.$refs
+      root: (...) == this
+      */
     // 解构的写法
-    setup(props,{refs}){
+    setup(props,{refs,root}){
     // 验证用户名
    let validateUsername = (rule, value, callback) => {
           
@@ -103,7 +113,7 @@ export default {
         //   console.log(stripscript(value));
         // 把过滤后的数据重新绑定到value里面
           ruleForm.password= stripscript(value)
-          value = stripscript(value)
+          // value = stripscript(value)
 
         if (value === '') {
           callback(new Error('草拟吗输入密码呀,傻逼'));
@@ -158,6 +168,8 @@ export default {
 
       //模块值
       const model = ref('login');
+      // 登录按钮禁用状态
+      const loginButtonStatus = ref(true);
       const  bth = ref('登录');
       // console.log(isRef(model) ? true : false);
       // console.log(menuTab[0]);
@@ -214,10 +226,7 @@ export default {
          });
          data.current= true
          model.value=data.type
-         bth.value= '登录'
-         if(data.type == 'registered'){
-             bth.value='注册'
-         }
+       
     });
 
     // 提交表单验证方法
@@ -238,7 +247,29 @@ export default {
         // const data = {
         //   username:ruleForm.username
         // }
-        GetSms({username:ruleForm.username});
+        // 请求的接口
+        // 前端写了拦截就会前端拦截,拦截器就不会拦截,前端和拦截器都要做拦截
+        // 验证邮箱
+        if(ruleForm.username == ''){
+          root.$message.error('邮箱不能为空');
+          return false
+        }
+        // 验证邮箱格式
+        if(validateEmail(ruleForm.username)){
+          root.$message.error('邮箱格式不正确,请重新输入');
+          return false
+        }
+        let requestData = {
+          username:ruleForm.username,module:'login'
+          }
+
+        GetSms(requestData).then(response => {
+          console.log(response);
+          
+        }).catch(error =>{
+          console.log(error);
+          
+        });
         // alert('fjsk')
       })
 
@@ -250,7 +281,8 @@ export default {
         rules,
          toggleMneu,
          submitForm,
-         getSms
+         getSms,
+         loginButtonStatus
       }
 
   }

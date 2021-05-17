@@ -1,5 +1,6 @@
 // 拦截器
 import axios from 'axios';
+import { Message } from 'element-ui';
 //创建axios,赋给变量service
 // 手把手撸码前端API，地址 http://www.web-jshtml.cn/productapi
 const BASEURL = process.env.NODE_ENV === 'production' ? '' : '/devApi';
@@ -24,7 +25,14 @@ service.interceptors.request.use(function (config) {
 // 添加响应拦截器
 service.interceptors.response.use(function (response) {
     // 对响应数据做点什么
-    return response;
+    let data = response.data
+    if(data.resCode !== 0){
+      Message.error(data.message);
+      return Promise.reject(data);
+    }else{
+      return response;
+    }
+    
   }, function (error) {
     // 对响应错误做点什么
     return Promise.reject(error);

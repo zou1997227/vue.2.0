@@ -2,7 +2,7 @@ import service from '@/utils/request'
 
 // 获取验证码的接口
 export function GetSms(data){
-    service.request(
+   return service.request(
     {
         method: 'post',
         url: '/getSms/',
