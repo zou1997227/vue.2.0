@@ -6,7 +6,7 @@
           :class="{'current' : item.current}"
           v-for="item in menuTab"
           :key="item.id"
-          @click="toggleMneu(item)"
+          @click="toggleMenu(item)"
         >{{item.txt}}</li>
         <!-- <li>注册</li> -->
       </ul>
@@ -170,7 +170,7 @@ export default {
       const model = ref('login');
       // 登录按钮禁用状态
       const loginButtonStatus = ref(true);
-      const  bth = ref('登录');
+    
       // console.log(isRef(model) ? true : false);
       // console.log(menuTab[0]);
       // let a = reactive({
@@ -218,7 +218,7 @@ export default {
        */
       // 切换登录注册模块
       //以声明函数的方式创建函数 数据驱动视图
-     const toggleMneu =(data =>{
+     const toggleMenu =(data =>{
          console.log(data)
          menuTab.forEach(elem =>{
              // console.log(elem);
@@ -276,10 +276,9 @@ export default {
       return{
         menuTab,
         model,
-        bth,
         ruleForm,
         rules,
-         toggleMneu,
+         toggleMenu,
          submitForm,
          getSms,
          loginButtonStatus
