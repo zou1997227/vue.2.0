@@ -13,17 +13,17 @@
 
       <!-- form验证表单 -->
       <el-form
-        :model="ruleForm"
+        :model="loginFrom"
         status-icon
         :rules="rules"
-        ref="ruleForm"
-        class="demo-ruleForm login-form"
+        ref="loginFrom"
+        class="demo-loginFrom login-form"
         size="medium"
       >
         <!-- 邮箱 -->
         <el-form-item prop="username" class="item-from">
           <label for="username">邮箱</label>
-          <el-input id="username" type="text" v-model="ruleForm.username" autocomplete="off" class="input"></el-input>
+          <el-input id="username" type="text" v-model="loginFrom.username" autocomplete="off" class="input"></el-input>
         </el-form-item>
 
         <!-- 密码 -->
@@ -32,7 +32,7 @@
           <el-input
             id="password"
             type="text"
-            v-model="ruleForm.password"
+            v-model="loginFrom.password"
             autocomplete="off"
             class="input"
             minlength="6"
@@ -42,12 +42,12 @@
 
         <!-- 验证密码 -->
         <!-- 使用v-show的话有一些小bug,切换到login页面的话也是提交不成功,可以使用v-if,也可以重新加一个判断 -->
-        <el-form-item prop="passwords" class="item-from" v-show="model === 'registered'">
+        <el-form-item prop="passwords" class="item-from" v-show="model === 'register'">
           <label for="passwords">重复密码</label>
           <el-input
           id="passwords"
             type="text"
-            v-model="ruleForm.passwords"
+            v-model="loginFrom.passwords"
             autocomplete="off"
             class="input"
             minlength="6"
@@ -61,17 +61,18 @@
           <el-row :gutter="10">
             <el-col :span="15">
               <!-- .number的作用是不让输入字符,只允许输入数字 -->
-              <el-input id="code" type="text" v-model="ruleForm.code" maxlength="6"></el-input>
+              <el-input id="code" type="text" v-model="loginFrom.code" maxlength="6"></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
+              <el-button type="success" class="block" @click="getSms()" :disabled="codeButtonStatus.status"
+              >{{codeButtonStatus.text}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="danger" :disabled="loginButtonStatus" @click="submitForm('ruleForm')" class="login-bth block">{{model == 'login' ? "登录" : "注册"}}</el-button>
-          <!-- <el-button @click="resetForm('ruleForm')">重置</el-button> -->
+          <el-button type="danger" :disabled="loginButtonStatus" @click="submitForm('loginFrom')" class="login-bth block">{{model == 'login' ? "登录" : "注册"}}</el-button>
+          <!-- <el-button @click="resetForm('loginFrom')">重置</el-button> -->
         </el-form-item>
       </el-form>
     </div>
@@ -112,7 +113,7 @@ export default {
       let validatePassword = (rule, value, callback) => {
         //   console.log(stripscript(value));
         // 把过滤后的数据重新绑定到value里面
-          ruleForm.password= stripscript(value)
+          loginFrom.password= stripscript(value)
           // value = stripscript(value)
 
         if (value === '') {
@@ -128,7 +129,7 @@ export default {
       let validatePasswordd = (rule, value, callback) => {
         //   console.log(stripscript(value));
         // 把过滤后的数据重新绑定到value里面
-          ruleForm.passwords= stripscript(value)
+          loginFrom.passwords= stripscript(value)
           value = stripscript(value)
         // 解决v-show的登录小bug
           if(model.value == 'login'){
@@ -137,7 +138,7 @@ export default {
 
         if (value === '') {
           callback(new Error('请再次输入密码'));
-        } else if (value != ruleForm.password) {
+        } else if (value != loginFrom.password) {
           callback(new Error('两次密码输入不一样'));
         } else {
           callback();
@@ -146,7 +147,7 @@ export default {
 
     //   验证验证码正则格式
         let validateCode = (rule, value, callback) => { 
-            ruleForm.code= stripscript(value)
+            loginFrom.code= stripscript(value)
             value = stripscript(value)
         if (!value) {
            callback(new Error('验证码不能为空'));
@@ -163,13 +164,21 @@ export default {
       // 这里面放置data数据、生命周期、自定义的函数
       const menuTab = reactive([
         {txt:'登录',current:true,type:'login'},
-        {txt:'注册',current:false,type:'registered'}
+        {txt:'注册',current:false,type:'register'}
       ]);
 
       //模块值
       const model = ref('login');
       // 登录按钮禁用状态
       const loginButtonStatus = ref(true);
+
+      // 验证码按钮状态
+      const codeButtonStatus = reactive({
+        status:false,
+        text:'获取验证码'
+      });
+
+      const timer = ref('');
     
       // console.log(isRef(model) ? true : false);
       // console.log(menuTab[0]);
@@ -184,7 +193,7 @@ export default {
       
       
       // 表单的绑定数据
-      const ruleForm =reactive({
+      const loginFrom =reactive({
           username: '',
           password: '',
           code: '',
@@ -219,15 +228,30 @@ export default {
       // 切换登录注册模块
       //以声明函数的方式创建函数 数据驱动视图
      const toggleMenu =(data =>{
-         console.log(data)
+        //  console.log(data)
          menuTab.forEach(elem =>{
              // console.log(elem);
              elem.current = false;
          });
-         data.current= true
-         model.value=data.type
+         data.current= true;
+         model.value=data.type;
+         resetFormData();
+         clearCountDown();
        
     });
+
+    // 重置表单,ui库提供的方法
+   const  resetFormData =( () => {
+      // this.$refs[formName].resetFields(); //2.0
+        // refs.loginFrom.resetFields();//3.0
+        refs['loginFrom'].resetFields();//3.0用括号要用引号引起来
+      });
+
+      // 更新按钮状态
+      const updataButtonStatus = ((params) =>{
+        codeButtonStatus.status = params.status,
+        codeButtonStatus.text = params.text
+      })
 
     // 提交表单验证方法
    const submitForm = (formName => {
@@ -245,43 +269,102 @@ export default {
       // 获取验证码
       const getSms = (() =>{
         // const data = {
-        //   username:ruleForm.username
+        //   username:loginFrom.username
         // }
         // 请求的接口
         // 前端写了拦截就会前端拦截,拦截器就不会拦截,前端和拦截器都要做拦截
         // 验证邮箱
-        if(ruleForm.username == ''){
+        if(loginFrom.username == ''){
           root.$message.error('邮箱不能为空');
           return false
         }
         // 验证邮箱格式
-        if(validateEmail(ruleForm.username)){
+        if(validateEmail(loginFrom.username)){
           root.$message.error('邮箱格式不正确,请重新输入');
           return false
         }
         let requestData = {
-          username:ruleForm.username,module:'login'
+          username:loginFrom.username,module:model.value
           }
 
+          // 修改获取验证码按钮状态
+          updataButtonStatus({
+            status:true,
+            text:'发送中'
+          })
+
         GetSms(requestData).then(response => {
-          console.log(response);
+          let data = response.data
+          console.log(data);
+          root.$message({
+            message:data.message,
+            type:'success',
+            showClose: true,
+            center:true,
+            duration:10000,
+          });
+          loginButtonStatus.value = false
+          countDown(10)
           
         }).catch(error =>{
           console.log(error);
+          updataButtonStatus.value = false;
+          updataButtonStatus({
+            status:false,
+            text:'再次获取'
+          })
           
         });
         // alert('fjsk')
       })
 
+      // 倒时器
+    const countDown = ((number) => {
+       // 60 和 0不见了，故意留BUG
+        // setTimeout:clearTimeout(变量)  只执行一次
+        // setInterval:clearInterval(变量))  不断的执行，需要条件才会停止
+        // 判断定时器是否存在，存在则清除
+        // if(timer.value){clearInterval(timer.value)}
+        let time = number
+        timer.value = setInterval(()=>{
+          console.log(time);
+          
+          time--;
+          if(time===0){
+            clearInterval(timer.value)
+            updataButtonStatus({
+              status:false,
+              text:'再次获取'
+            })
+          }else{
+            codeButtonStatus.text = `倒计时${time}秒`// es5 '倒计时' + time + '秒'
+          }
+        },1000)
+    })
+
+    // 清除倒计时
+    const clearCountDown = (() => {
+      // 还原验证码默然状态
+      updataButtonStatus({
+        status:false,
+        text:'获取验证码'
+      });
+      // 清除定时器
+      clearInterval(timer.value)
+    })
+
       return{
         menuTab,
         model,
-        ruleForm,
+        loginFrom,
         rules,
-         toggleMenu,
-         submitForm,
-         getSms,
-         loginButtonStatus
+        toggleMenu,
+        submitForm,
+        getSms,
+        loginButtonStatus,
+        codeButtonStatus,
+        timer,
+
       }
 
   }

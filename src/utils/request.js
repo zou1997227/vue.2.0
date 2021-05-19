@@ -6,8 +6,9 @@ import { Message } from 'element-ui';
 const BASEURL = process.env.NODE_ENV === 'production' ? '' : '/devApi';
 const service = axios.create({
         baseURL: BASEURL,
-        timeout: 1000,//超时
-        // headers: {'X-Custom-Header': 'foobar'}
+        timeout: 15000,//超时,设置太短的话网络慢就会出问题,尽量吧时间设置大一点
+        // 网络请求接口，假设 5000
+        // 1000 2000，
     });
 
 
