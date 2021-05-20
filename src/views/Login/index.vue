@@ -85,10 +85,12 @@
   </div>
 </template>
 <script>
+import sha1 from 'js-sha1';
 import {GetSms,Register,Login} from '@/api/login';
 import {reactive,ref,isRef, toRefs} from '@vue/composition-api';
 import {stripscript,validateEmail,validateCodes,validatePasswords} from "@/utils/validate";
 export default {
+  // 加密的方式,base64,md5,sha1
     name:'login',
     // vue3.0语法,都写在这个函数里面
   // setup(props,context){
@@ -203,7 +205,7 @@ export default {
       
       // 表单的绑定数据
       const loginFrom =reactive({
-          username: '',
+          username: '1916971059@qq.com',
           password: '',
           code: '',
           passwords:'',
@@ -258,7 +260,6 @@ export default {
          resetFormData();
         //清除计时器
          clearCountDown();
-       
     });
 
     // 重置表单,ui库提供的方法
@@ -305,7 +306,7 @@ export default {
       const login = (() =>{
         let requestData = {
                username:loginFrom.username,
-               password:loginFrom.password,
+               password:sha1(loginFrom.password),
                code:loginFrom.code
              }
              Login(requestData).then(response=>{
@@ -325,7 +326,7 @@ export default {
       const register = (()=>{
            let requestData ={
               username:loginFrom.username,
-              password:loginFrom.password,
+              password:sha1(loginFrom.password),
               code:loginFrom.code,
               module:'register'
             }
@@ -386,7 +387,7 @@ export default {
             duration:10000,
           });
           loginButtonStatus.value = false
-          countDown(10)
+          countDown(60)
         }).catch(error =>{
           console.log(error);
           updataButtonStatus.value = false;
