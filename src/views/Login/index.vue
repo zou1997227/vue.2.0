@@ -29,9 +29,12 @@
         <!-- 密码 -->
         <el-form-item prop="password" class="item-from">
           <label for="password">密码</label>
+          <i class="el-icon-delete look"
+          @click="look()"
+          ></i>
           <el-input
             id="password"
-            type="text"
+            :type=watch
             v-model="loginFrom.password"
             autocomplete="off"
             class="input"
@@ -44,9 +47,12 @@
         <!-- 使用v-show的话有一些小bug,切换到login页面的话也是提交不成功,可以使用v-if,也可以重新加一个判断 -->
         <el-form-item prop="passwords" class="item-from" v-show="model === 'register'">
           <label for="passwords">重复密码</label>
+          <i class="el-icon-delete look"
+          @click="look()"
+          ></i>
           <el-input
           id="passwords"
-            type="text"
+            :type=watch
             v-model="loginFrom.passwords"
             autocomplete="off"
             class="input"
@@ -79,7 +85,7 @@
   </div>
 </template>
 <script>
-import {GetSms} from '@/api/login';
+import {GetSms,Register,Login} from '@/api/login';
 import {reactive,ref,isRef, toRefs} from '@vue/composition-api';
 import {stripscript,validateEmail,validateCodes,validatePasswords} from "@/utils/validate";
 export default {
@@ -178,7 +184,10 @@ export default {
         text:'获取验证码'
       });
 
+  // 定义一个空字符串的变量赋值方便给定时器定义一个名字
       const timer = ref('');
+      // 显示或隐藏密码的一个变量
+      const watch = ref('password');
     
       // console.log(isRef(model) ? true : false);
       // console.log(menuTab[0]);
@@ -223,8 +232,16 @@ export default {
        */
 
       /**
-       * 声明函数
+       * 声明函数********************************
        */
+      // 显示密码或者隐藏密码的方法
+      const look = (()=> {
+        if(watch.value == 'password'){
+          watch.value = 'text'
+        }else if(watch.value == 'text'){
+          watch.value = 'password'
+        }
+      })
       // 切换登录注册模块
       //以声明函数的方式创建函数 数据驱动视图
      const toggleMenu =(data =>{
@@ -233,9 +250,13 @@ export default {
              // console.log(elem);
              elem.current = false;
          });
+        //  高光
          data.current= true;
+        //  修改模块值
          model.value=data.type;
+        //  清除表单,切换模块时,输入框里面的内容都会清除
          resetFormData();
+        //清除计时器
          clearCountDown();
        
     });
@@ -247,7 +268,7 @@ export default {
         refs['loginFrom'].resetFields();//3.0用括号要用引号引起来
       });
 
-      // 更新按钮状态
+      // 更新发送验证码按钮状态
       const updataButtonStatus = ((params) =>{
         codeButtonStatus.status = params.status,
         codeButtonStatus.text = params.text
@@ -255,17 +276,75 @@ export default {
 
     // 提交表单验证方法
    const submitForm = (formName => {
+    //  模拟注册成功,点击注册后跳转到登录
+    // console.log(11111)
+    // toggleMenu(menuTab[0]);
+    // clearCountDown();
+    // 阻止执行下面的代码
+    // return false
+    // console.log(11111)
     //  context.refs[formName].validate((valid) => {
       // 解构的写法,不用加context了
+      // console.log('22222');
         refs[formName].validate((valid) => {
           if (valid) {
-            alert('submit!');
+            // 改成三目运算符
+            model.value == 'login' ? login() : register();
+          //  if(model.value == 'login'){
+          //    login()
+          //  }else{
+          //     register()
+          //  };
           } else {
-            alert('error submit!!');
+            root.$message.error("未填写完全")
             return false;
           }
         })
       });
+      // 登录接口
+      const login = (() =>{
+        let requestData = {
+               username:loginFrom.username,
+               password:loginFrom.password,
+               code:loginFrom.code
+             }
+             Login(requestData).then(response=>{
+               let data = response.data
+               root.$message({
+                 message:data.message,
+                 type:'success',
+                 center:'true'
+               })
+             }).catch(error => {
+               console.log('登录失败了')
+             })
+      })
+        
+      
+      // 注册接口
+      const register = (()=>{
+           let requestData ={
+              username:loginFrom.username,
+              password:loginFrom.password,
+              code:loginFrom.code,
+              module:'register'
+            }
+            // 注册接口
+            Register(requestData).then(response =>{
+              let data = response.data
+              root.$message({
+                message:data.message,
+                type:'success'
+              })
+              toggleMenu(menuTab[0]);
+              clearCountDown();
+              
+            }).catch(error =>{
+              // 失败时执行的代码
+              console.log('注册失败了')
+            })
+      })
+
       // 获取验证码
       const getSms = (() =>{
         // const data = {
@@ -283,6 +362,7 @@ export default {
           root.$message.error('邮箱格式不正确,请重新输入');
           return false
         }
+        // 发送验证码的接口参数,里面的module需要和后端沟通,规定一个判断验证码是登录还是注册的按钮调用验证码接口
         let requestData = {
           username:loginFrom.username,module:model.value
           }
@@ -293,7 +373,9 @@ export default {
             text:'发送中'
           })
 
-        GetSms(requestData).then(response => {
+            // 倒计时(只会执行一次,不用清除),模仿发送请求的延迟
+          setTimeout(() => {
+            GetSms(requestData).then(response => {
           let data = response.data
           console.log(data);
           root.$message({
@@ -305,16 +387,19 @@ export default {
           });
           loginButtonStatus.value = false
           countDown(10)
-          
         }).catch(error =>{
           console.log(error);
           updataButtonStatus.value = false;
           updataButtonStatus({
             status:false,
             text:'再次获取'
-          })
+          });
           
         });
+            
+          }, 1000);
+
+        
         // alert('fjsk')
       })
 
@@ -324,11 +409,10 @@ export default {
         // setTimeout:clearTimeout(变量)  只执行一次
         // setInterval:clearInterval(变量))  不断的执行，需要条件才会停止
         // 判断定时器是否存在，存在则清除
-        // if(timer.value){clearInterval(timer.value)}
+        if(timer.value){clearInterval(timer.value)}
         let time = number
         timer.value = setInterval(()=>{
           console.log(time);
-          
           time--;
           if(time===0){
             clearInterval(timer.value)
@@ -364,7 +448,8 @@ export default {
         loginButtonStatus,
         codeButtonStatus,
         timer,
-
+        watch,
+        look,
       }
 
   }
@@ -394,7 +479,7 @@ export default {
     font-size: 14px;
     color: #fff;
     border-radius: 2px;
-    cursor: pointer;
+    cursor: pointer;//鼠标移上去,鼠标会变成小手,证明这个标签有点击事件
   }
   .current {
     background-color: rgba(0, 0, 0, 1);
@@ -413,6 +498,8 @@ export default {
 
   .item-from {
     margin-bottom: 24px;
+       position: relative;
+  
   }
   .block {
     display: block;
@@ -422,6 +509,13 @@ export default {
     margin-top: 8px;
   }
 }
+ .look{
+     z-index: 1;
+    position: absolute;
+    top: 30px;
+    right:10px;
+    color: red;
+   }
 
 //验证码布局样式
 .el-row {
