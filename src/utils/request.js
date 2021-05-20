@@ -24,7 +24,7 @@ service.interceptors.request.use(function (config) {
     // config.headers['Tokey']= '111111'
     // config.headers['userId']= '44444'
     // config.headers['sui']='55555'
-    console.log(config.headers)
+    // console.log(config.headers)
     // 最后把config ,return出去就可以了
     return config;
   }, function (error) {

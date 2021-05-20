@@ -169,6 +169,8 @@ export default {
        /*********************************************************************************************************************
        * 声明数据
        */
+
+      // 不建议在一个方法里面做多件不同的事情(尽可能做自己的事情)
       // 这里面放置data数据、生命周期、自定义的函数
       const menuTab = reactive([
         {txt:'登录',current:true,type:'login'},
@@ -205,7 +207,7 @@ export default {
       
       // 表单的绑定数据
       const loginFrom =reactive({
-          username: '1916971059@qq.com',
+          username: '345553430@qq.com',
           password: '',
           code: '',
           passwords:'',
@@ -264,7 +266,7 @@ export default {
 
     // 重置表单,ui库提供的方法
    const  resetFormData =( () => {
-      // this.$refs[formName].resetFields(); //2.0
+      // this.$refs[formName].resetFields(); //vue2.0
         // refs.loginFrom.resetFields();//3.0
         refs['loginFrom'].resetFields();//3.0用括号要用引号引起来
       });
@@ -309,6 +311,7 @@ export default {
                password:sha1(loginFrom.password),
                code:loginFrom.code
              }
+
              Login(requestData).then(response=>{
                let data = response.data
                root.$message({
@@ -316,6 +319,11 @@ export default {
                  type:'success',
                  center:'true'
                })
+               root.$router.push(
+                //  {path:'/console'}
+                // '/console'
+                {name:'console'}
+                 )
              }).catch(error => {
                console.log('登录失败了')
              })
@@ -387,7 +395,8 @@ export default {
             duration:10000,
           });
           loginButtonStatus.value = false
-          countDown(60)
+          // 计时器
+          countDown(5)
         }).catch(error =>{
           console.log(error);
           updataButtonStatus.value = false;
@@ -413,7 +422,7 @@ export default {
         if(timer.value){clearInterval(timer.value)}
         let time = number
         timer.value = setInterval(()=>{
-          console.log(time);
+          // console.log(time);
           time--;
           if(time===0){
             clearInterval(timer.value)
@@ -461,6 +470,7 @@ export default {
 #login {
   //vh根据可视区域的宽高来定义,10vh就是100%可视区域的高
   height: 100vh;
+  width: 100vw;
   background-color: #344a5f;
   display: flex;
 }
