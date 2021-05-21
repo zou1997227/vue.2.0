@@ -1,15 +1,12 @@
 <template>
-    <div class="console">
-            这里是控制台
+    <div>
+        用户分类
     </div>
 </template>
 
 <script>
 export default {
-    name:'index',
-    components:{
-        
-    },
+    
 }
 </script>
 
