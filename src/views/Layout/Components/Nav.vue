@@ -1,5 +1,6 @@
 <template>
   <div id="nav-wrap">
+    <h1 class="login"><img src="../../../assets/logo.png" alt=""></h1>
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -15,10 +16,10 @@
     key值不能绑定在这个上面,会报错的
      -->
     <template v-for="(item , index) in routers"> 
-         <el-submenu  :key="item.id" :index="item.path"  v-if="!item.hidden">
+         <el-submenu  :key="item.id" :index="index + ''"  v-if="!item.hidden">
         <!-- 一级菜单 -->
         <template slot="title">
-          <i class="el-icon-location"></i>
+          <svg-icon :iconClass='item.meta.icon' :className='item.meta.icon'/> 
           <span slot="title">{{item.meta.name}}</span>
         </template>
 
@@ -26,8 +27,8 @@
         <el-menu-item v-for="subItem in item.children" :key="subItem.id" :index="subItem.path">{{subItem.meta.name}}</el-menu-item>
       </el-submenu>
     </template>
-     
     </el-menu>
+    
   </div>
 </template>
 
@@ -42,7 +43,7 @@ export default {
         // console.log(root.$router)
         // console.log(root.$router.options.routes);
         const routers = reactive(root.$router.options.routes);
-        console.log(routers);
+        // console.log(routers[2].meta.icon);
         
         // 函数
         // methods方法
@@ -57,7 +58,7 @@ export default {
           isCollapse,
           handleOpen,
           handleClose,
-          routers
+          routers,
       }
     }
 }
@@ -72,9 +73,21 @@ export default {
   width: $navMenu;
   height: 100vh;
   background: #344a5f;
+  svg{
+      font-size: 20px;
+      margin-right: 13px;
+      color: #ffffff;
+  }
 }
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 100%;
   min-height: 400px;
+}
+
+.login{
+  img{
+    margin: 28px auto 25px;
+    width: 92px;
+  }
 }
 </style>

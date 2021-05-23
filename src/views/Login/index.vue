@@ -85,6 +85,7 @@
   </div>
 </template>
 <script>
+// 前端加密的插件,npm install 下载就行
 import sha1 from 'js-sha1';
 import {GetSms,Register,Login} from '@/api/login';
 import {reactive,ref,isRef, toRefs} from '@vue/composition-api';

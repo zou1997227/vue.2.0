@@ -1,6 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 // import Home from "../views/Home.vue";
+// import Layout from "@/views/Layout/index"
+// 目录下面是index文件的话可以简写如下,一定要是index文件
+import Layout from "@/views/Layout/"
 
 Vue.use(VueRouter);
 
@@ -10,7 +13,7 @@ const routes = [
     redirect: "login",
     hidden:true,
     meta:{
-      name:'主页'
+      name:'主页',
     }
   },
   {
@@ -18,7 +21,7 @@ const routes = [
     name: "login",
     hidden:true,
     meta:{
-      name:'登录'
+      name:'登录',
     },
     component: () =>
       import( "../views/Login/index.vue"),
@@ -26,12 +29,13 @@ const routes = [
   {
     path: "/console",
     name: "console",
+    redirect:'index',
     meta:{
-      name:'控制台'
+      name:'控制台',
+      icon:'console'
     },
     redirect:"index",
-    component: () =>
-    import( "../views/Layout/index.vue"),
+    component: Layout,
     children:[{
       path:'/index',
       name:'index',
@@ -54,10 +58,10 @@ const routes = [
     path: "/info",
     name: "Info",
     meta:{
-      name:'信息管理'
+      name:'信息管理',
+      icon:'info'
     },
-    component: () =>
-    import( "../views/Layout/index.vue"),
+    component: Layout,
     children:[
       {
       path: "/infoIndex",
@@ -84,10 +88,10 @@ const routes = [
   path: "/user",
   name: "User",
   meta:{
-    name:'用户管理'
+    name:'用户管理',
+    icon:'user'
   },
-  component: () =>
-  import( "../views/Layout/index.vue"),
+  component: Layout,
   children:[
     {
     path: "/userIndex",
