@@ -1,6 +1,6 @@
 <template>
     <div id="header-wrap">
-        <div class="header-icon pull-left"> 
+        <div class="header-icon pull-left" @click="navMenuState"> 
             <svg-icon iconClass="menu" className="menu" />
         </div>
         <div class="pull-right">
@@ -22,10 +22,15 @@ export default {
     name:"layoutHeader",
     setup(props,{root}){
         const username = ref('别让眼睛沸腾');
+
+        // 改变控制nav菜单栏伸缩的变量
+        const navMenuState = () =>{
+          return root.$store.commit('SET_COLLAPSE')
+        }
        
         return{
             username,
-
+            navMenuState
         }
     }
 }
@@ -41,7 +46,26 @@ export default {
         height: 75px;
         // width: 100vw;
         background: #fff;
-        -webkit-box-shadow:0 3px 16px 0 rgba(0,0,0,.1);
+        @include webkit(box-shadow,0 3px 16px 0 rgba(0,0,0,.1));
+        @include webkit(transition,all .3s ease 0s);
+    }
+    .close{
+        #header-wrap{
+        @include webkit(transition,all .3s ease 0s);
+        position: fixed;
+        top: 0;
+        right: 0;
+        left:$navMenuMin;
+    }
+    }
+     .open{
+        #header-wrap{
+        @include webkit(transition,all .3s ease 0s);
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: $navMenu;
+    }
     }
     .header-icon{
         padding: 0 32px;
@@ -59,6 +83,22 @@ export default {
            margin:28px;
            color: red;
        }
+    }
+    .close{
+        .quit{
+            svg{
+                @include webkit(transition,all .3s ease 0s);
+                margin-right: 60px;
+            }
+        }
+    }
+    .open{
+        .quit{
+            svg{
+                @include webkit(transition,all .3s ease 0s);
+                 margin:28px;
+            }
+        }
     }
 
     .icon{

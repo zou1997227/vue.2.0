@@ -26,6 +26,25 @@ export default {
         border: solid 30px #f7f7f7;
         // background: red;
     }
+    .close{
+        #main-wrap{
+        @include webkit(transition,all .3s ease 0s);
+        position: fixed;
+        top: 75px;
+        left: $navMenuMin;
+        // right: 0;
+    }
+    }
+    .open{
+        #main-wrap{
+        @include webkit(transition,all .3s ease 0s);
+        position: fixed;
+        top: 75px;
+        left: $navMenu;
+        // right: 0;
+    }
+    }
+
 
     .content{
         width: 100%;

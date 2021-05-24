@@ -33,17 +33,22 @@
 </template>
 
 <script>
-import {ref,reactive} from '@vue/composition-api';
+import {ref,reactive, computed} from '@vue/composition-api';
 export default {
     name:'navMenu',
     setup(props,{root}){
         // data数据
-        const isCollapse= ref(false);
+        // const isCollapse= ref(false);
     // 路由方法
         // console.log(root.$router)
         // console.log(root.$router.options.routes);
         const routers = reactive(root.$router.options.routes);
         // console.log(routers[2].meta.icon);
+
+        // 通过监听属性，监听控制nav菜单伸缩的bollon值
+        const isCollapse = computed(() => {
+          return root.$store.state.isCollapse
+        })
         
         // 函数
         // methods方法
@@ -54,6 +59,13 @@ export default {
         console.log(key, keyPath);
       };
 
+
+      // 打印state
+      console.log(root.$store.state.count)
+      // 打印getters
+        console.log(root.$store.getters.count)
+
+        root.$store.commit('SET_COUNT',100)
       return {
           isCollapse,
           handleOpen,
@@ -78,7 +90,23 @@ export default {
       margin-right: 13px;
       color: #ffffff;
   }
+  .el-menu{
+    border-right:none;
+  }
 }
+.close{
+  #nav-wrap {
+  @include webkit(transition,all .3s ease 0s);
+  width: $navMenuMin;
+}
+}
+.open{
+  #nav-wrap {
+  @include webkit(transition,all .3s ease 0s);
+   width: $navMenu;
+}
+}
+
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 100%;
   min-height: 400px;
@@ -89,5 +117,23 @@ export default {
     margin: 28px auto 25px;
     width: 92px;
   }
+}
+.close{
+  .login{
+  img{
+    @include webkit(transition,all .3s ease 0s);
+    margin:9px  auto 8px;
+    width: 30px;
+  }
+}
+}
+.open{
+  .login{
+  img{
+    @include webkit(transition,all .3s ease 0s);
+    margin: 28px auto 25px;
+    width: 92px;
+  }
+}
 }
 </style>
