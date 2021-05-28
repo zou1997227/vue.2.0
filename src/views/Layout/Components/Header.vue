@@ -90,7 +90,6 @@ export default {
             navMenuState,
             logout,
             open,
-
         }
     }
 }

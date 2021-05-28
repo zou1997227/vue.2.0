@@ -15,6 +15,8 @@ router.beforeEach((to,from,next) => {
         store.commit('app/SET_USERNAME','')
         next()
      }else{
+        //  用户权限
+        // 动态分配路由权限
         next()
      }
        
