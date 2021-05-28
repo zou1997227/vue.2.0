@@ -9,28 +9,88 @@
                 {{username}}
 
             </div>
-            <div class="quit pull-right">
-                <svg-icon iconClass="quit" className="quit" />
+            <div class="quit pull-right" >
+                <el-button type="text" @click="open">
+                    <svg-icon iconClass="quit" className="quit" />
+                </el-button>
+                
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import {ref,reactive} from "@vue/composition-api"
+import {removeToken} from "@/utils/app"
+import {ref,reactive, computed} from "@vue/composition-api"
 export default {
     name:"layoutHeader",
     setup(props,{root}){
-        const username = ref('别让眼睛沸腾');
+        const username = computed(() => {
+         return   root.$store.state.app.username
+        });
 
         // 改变控制nav菜单栏伸缩的变量
-        const navMenuState = () =>{
-          return root.$store.commit('SET_COLLAPSE')
+        const navMenuState = () =>{ 
+          return root.$store.commit('app/SET_COLLAPSE')
         }
+
+        const logout = () => {
+           root.$store.dispatch('app/logout').then(() => {
+               root.$router.push({name:'login'})
+           })
+        }
+
+
+        // 退出提示框
+       const open = () => {
+        const h = root.$createElement;
+        root.$msgbox({
+          title: '退出提示',
+          message: h('p', {style:'font-size:16px'}, [
+            h('span', null, '确定要'),
+            h('i', { style: 'color: red' }, '退出'),
+            h('i', null, '吗?')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          center:true,
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = false;
+            //   instance.confirmButtonText = '执行中...';
+            //   setTimeout(() => {
+                done();
+            //     setTimeout(() => {
+            //       instance.confirmButtonLoading = false;
+            //     }, 300);
+            //   }, 3000);
+            } else {
+              done();
+            }
+          }
+        }).then(action => {
+          root.$message({
+            type: 'success',
+            message: '退出成功' 
+          });
+        logout()
+        }).catch((error) => {
+            root.$message({
+            type: 'success',
+            message: '取消成功' 
+          });
+        })
+            
+      }
+
        
         return{
             username,
-            navMenuState
+            navMenuState,
+            logout,
+            open,
+
         }
     }
 }
@@ -78,10 +138,14 @@ export default {
         
     }
     .quit{
+        cursor: pointer;
        font-size: 18px;
        svg{
            margin:28px;
            color: red;
+       }
+       .el-button{
+           padding: 0 !important;
        }
     }
     .close{
@@ -116,5 +180,8 @@ export default {
             border-radius: 50%;    
             margin-top: 19px;                    
         }
+    }
+    .color{
+        background: red;
     }
 </style>

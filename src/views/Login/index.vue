@@ -29,9 +29,9 @@
         <!-- 密码 -->
         <el-form-item prop="password" class="item-from">
           <label for="password">密码</label>
-          <i class="el-icon-delete look"
+          <!-- <i class="el-icon-delete look"
           @click="look()"
-          ></i>
+          ></i> -->
           <el-input
             id="password"
             :type=watch
@@ -40,16 +40,16 @@
             class="input"
             minlength="6"
             maxlength="20"
-          ></el-input>
+          show-password></el-input>
         </el-form-item>
 
         <!-- 验证密码 -->
         <!-- 使用v-show的话有一些小bug,切换到login页面的话也是提交不成功,可以使用v-if,也可以重新加一个判断 -->
         <el-form-item prop="passwords" class="item-from" v-show="model === 'register'">
           <label for="passwords">重复密码</label>
-          <i class="el-icon-delete look"
+          <!-- <i class="el-icon-delete look"
           @click="look()"
-          ></i>
+          ></i> -->
           <el-input
           id="passwords"
             :type=watch
@@ -58,6 +58,7 @@
             class="input"
             minlength="6"
             maxlength="20"
+            show-password
           ></el-input>
         </el-form-item>
 
@@ -82,6 +83,7 @@
         </el-form-item>
       </el-form>
     </div>
+    
   </div>
 </template>
 <script>
@@ -313,21 +315,37 @@ export default {
                code:loginFrom.code
              }
 
-             Login(requestData).then(response=>{
+            //  用 vuex 里面的actions方法调用登录接口传参
+             root.$store.dispatch('app/login',requestData).then(response =>{
+               console.log('返回数据',response);
                let data = response.data
                root.$message({
                  message:data.message,
                  type:'success',
                  center:'true'
                })
-               root.$router.push(
-                //  {path:'/console'}
-                // '/console'
-                {name:'console'}
-                 )
+               root.$router.push({
+                 name:'console'
+               })
              }).catch(error => {
-               console.log('登录失败了')
+
              })
+
+            //  Login(requestData).then(response=>{
+            //    let data = response.data
+            //    root.$message({
+            //      message:data.message,
+            //      type:'success',
+            //      center:'true'
+            //    })
+            //    root.$router.push(
+            //     //  {path:'/console'}
+            //     // '/console'
+            //     {name:'console'}
+            //      )
+            //  }).catch(error => {
+            //    console.log('登录失败了')
+            //  })
       })
         
       

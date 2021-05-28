@@ -47,7 +47,7 @@ export default {
 
         // 通过监听属性，监听控制nav菜单伸缩的bollon值
         const isCollapse = computed(() => {
-          return root.$store.state.isCollapse
+          return root.$store.state.app.isCollapse
         })
         
         // 函数
@@ -61,11 +61,11 @@ export default {
 
 
       // 打印state
-      console.log(root.$store.state.count)
-      // 打印getters
-        console.log(root.$store.getters.count)
+      // console.log(root.$store.state.app.count)
+      // // 打印getters
+      //   console.log(root.$store.getters.app.count)
 
-        root.$store.commit('SET_COUNT',100)
+        root.$store.commit('app/SET_COUNT',100)
       return {
           isCollapse,
           handleOpen,
@@ -136,4 +136,5 @@ export default {
   }
 }
 }
+
 </style>
