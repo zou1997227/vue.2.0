@@ -63,7 +63,7 @@ export default {
       // 打印state
       // console.log(root.$store.state.app.count)
       // // 打印getters
-      //   console.log(root.$store.getters.app.count)
+        // console.log(root.$store.getters.app.count)
 
         root.$store.commit('app/SET_COUNT',100)
       return {
@@ -136,5 +136,6 @@ export default {
   }
 }
 }
+
 
 </style>
